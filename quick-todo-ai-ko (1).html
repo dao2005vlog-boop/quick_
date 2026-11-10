@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quick Todo - AI 도우미</title>
+<style>
+:root{--blue:#3978ed;--blue2:#245fd0;--bg:#f1f5fc;--ink:#26344d;--muted:#8996aa;--line:#e8edf5;--white:#fff;--green:#20a879;--shadow:0 8px 28px rgba(45,75,125,.07)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);min-height:100vh;padding:32px 16px}
+.app{width:min(100%,720px);margin:auto}.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}.brand{display:flex;align-items:center;gap:12px}.logo{width:44px;height:44px;border-radius:14px;background:var(--blue);color:white;display:grid;place-items:center;font-size:22px;box-shadow:0 6px 15px #3978ed44}.eyebrow{font-size:10px;letter-spacing:1.7px;font-weight:800;color:var(--blue);margin-bottom:3px}.brand h1{font-size:23px;margin:0;letter-spacing:-.7px}.date{font-size:12px;color:var(--muted);text-align:right}
+.card{background:var(--white);border:1px solid #e9eef6;border-radius:19px;padding:20px;margin-bottom:15px;box-shadow:var(--shadow)}.section-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}.section-kicker{font-size:9px;font-weight:800;letter-spacing:1.5px;color:#9aa8bc}.section-title{font-size:16px;font-weight:750;margin:5px 0 0}.count{font-size:11px;color:var(--muted)}
+.add-row{display:flex;gap:9px;margin-top:14px}.add-row input,.chat-form input,.edit-input{min-width:0;flex:1;border:1px solid var(--line);border-radius:10px;padding:12px 13px;font-size:13px;outline:none;color:var(--ink);background:#fbfcff}.add-row input:focus,.chat-form input:focus{border-color:#9bbaff;box-shadow:0 0 0 3px #3978ed14}button{border:0;cursor:pointer;font-weight:700;font-family:inherit}.primary{background:var(--blue);color:white;border-radius:10px;padding:0 18px;font-size:12px;transition:.15s}.primary:hover{background:var(--blue2);transform:translateY(-1px)}.hint{display:flex;justify-content:space-between;color:#a3afc0;font-size:10px;margin-top:8px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:15px}.stat{background:white;border:1px solid #e9eef6;border-radius:15px;padding:13px 15px;box-shadow:var(--shadow)}.stat small{display:block;color:var(--muted);font-size:10px;margin-bottom:6px}.stat strong{font-size:21px}.stat .unit{font-size:11px;color:var(--muted);font-weight:500}.progress{height:6px;background:#edf1f8;border-radius:8px;overflow:hidden;margin-top:10px}.progress span{display:block;height:100%;background:var(--blue);border-radius:8px;transition:width .25s}
+.task-list{display:flex;flex-direction:column;gap:8px}.task{display:flex;align-items:center;gap:11px;border:1px solid #edf1f7;border-radius:11px;padding:11px 12px;transition:.15s}.task:hover{border-color:#d6e2f8;background:#fcfdff}.task input{width:16px;height:16px;accent-color:var(--blue);cursor:pointer;flex-shrink:0}.task-name{font-size:12px;flex:1;overflow-wrap:anywhere}.task.done .task-name{text-decoration:line-through;color:#a4afbf}.task-actions{display:flex;gap:4px}.icon-btn{background:transparent;color:#a2afc1;padding:5px 6px;border-radius:7px;font-size:13px}.icon-btn:hover{background:#f0f4fb;color:var(--blue)}.empty{text-align:center;padding:26px 10px;color:#9aa8bb;font-size:12px}.filters{display:flex;gap:6px}.filter{padding:7px 10px;border-radius:8px;background:#f5f7fb;color:#8794a8;font-size:10px}.filter.active{background:#eaf1ff;color:var(--blue)}
+.chat-card{padding:0;overflow:hidden}.chat-head{padding:17px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:11px}.bot-icon{width:34px;height:34px;border-radius:11px;background:#eaf1ff;color:var(--blue);display:grid;place-items:center;font-size:17px}.chat-head strong{font-size:13px}.chat-head small{display:block;color:var(--muted);font-size:10px;margin-top:3px}.online{margin-left:auto;font-size:10px;color:var(--green)}.online:before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);margin-right:5px;vertical-align:1px}
+.messages{height:245px;overflow:auto;padding:16px 18px;background:#fcfdff;display:flex;flex-direction:column;gap:11px}.msg{max-width:88%;font-size:12px;line-height:1.55;padding:10px 12px;border-radius:12px;white-space:pre-wrap;overflow-wrap:anywhere}.msg.bot{align-self:flex-start;background:#f0f3f8;color:#536178;border-bottom-left-radius:4px}.msg.user{align-self:flex-end;background:var(--blue);color:white;border-bottom-right-radius:4px}.msg ul{padding-left:17px;margin:6px 0}.quick-prompts{display:flex;gap:7px;flex-wrap:wrap;padding:11px 17px 0}.quick{font-size:10px;color:#5776ac;background:#f0f5ff;border:1px solid #e2ebff;padding:7px 10px;border-radius:20px}.quick:hover{background:#e4edff}.chat-form{display:flex;gap:8px;padding:13px 16px 16px}.chat-form input{padding:11px 12px}.send{width:39px;height:39px;border-radius:10px;background:var(--blue);color:white;font-size:16px;flex-shrink:0}.chat-note{padding:0 18px 14px;color:#a5afbd;font-size:9px;text-align:center}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#26344d;color:white;padding:10px 15px;border-radius:10px;font-size:12px;opacity:0;pointer-events:none;transition:.2s}.toast.show{opacity:1}
+.footer{text-align:center;color:#a5afbd;font-size:10px;padding:5px 0 20px}
+@media(max-width:520px){body{padding:20px 12px}.card{padding:16px}.brand h1{font-size:20px}.stats{gap:7px}.stat{padding:11px}.stat strong{font-size:19px}.section-top{align-items:flex-start;gap:8px}.filters{flex-wrap:wrap;justify-content:flex-end}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand"><div class="logo">✓</div><div><div class="eyebrow">나의 하루 목록</div><h1>퀵 투두</h1></div></div>
+    <div class="date" id="today"></div>
+  </header>
+
+  <section class="stats">
+    <div class="stat"><small>전체 할 일</small><strong id="total">0</strong><span class="unit">개</span></div>
+    <div class="stat"><small>미완료</small><strong id="remaining">0</strong><span class="unit">개</span></div>
+    <div class="stat"><small>완료</small><strong id="completed">0</strong><span class="unit">개</span><div class="progress"><span id="progress" style="width:0%"></span></div></div>
+  </section>
+
+  <section class="card">
+    <div class="section-top"><div><div class="section-kicker">새 할 일</div><div class="section-title">오늘은 무엇을 할까요?</div></div><span class="count" id="charCount">0/100</span></div>
+    <form class="add-row" id="addForm"><input id="taskInput" maxlength="100" placeholder="새로운 할 일을 입력하세요..." autocomplete="off"><button class="primary" type="submit">＋ 추가</button></form>
+    <div class="hint"><span>Enter 키를 눌러 빠르게 추가하세요</span><span>최대 100자</span></div>
+  </section>
+
+  <section class="card">
+    <div class="section-top"><div><div class="section-kicker">나의 할 일</div><div class="section-title">할 일 목록</div></div><div class="filters"><button class="filter active" data-filter="all">전체</button><button class="filter" data-filter="active">미완료</button><button class="filter" data-filter="done">완료</button></div></div>
+    <div class="task-list" id="taskList"></div>
+  </section>
+
+  <section class="card chat-card">
+    <div class="chat-head"><div class="bot-icon">✦</div><div><strong>Todo AI 도우미</strong><small>스마트 할 일 관리 도우미</small></div><span class="online">로컬 AI</span></div>
+    <div class="messages" id="messages" aria-live="polite"><div class="msg bot">안녕하세요! Todo 도우미입니다. ✨<br>할 일에 대해 질문하거나 새 항목 추가, 완료 처리를 요청해 보세요!</div></div>
+    <div class="quick-prompts">
+      <button class="quick" data-prompt="오늘 남은 할 일이 뭐야?">남은 할 일</button>
+      <button class="quick" data-prompt="전체 현황을 보여줘">전체 현황</button>
+      <button class="quick" data-prompt="무엇부터 하면 좋을까?">우선순위 추천</button>
+    </div>
+    <form class="chat-form" id="chatForm"><input id="chatInput" maxlength="300" placeholder="AI에게 질문하거나 명령을 입력하세요..." autocomplete="off"><button class="send" aria-label="메시지 보내기">➤</button></form>
+    <div class="chat-note">브라우저에서 직접 처리합니다 · API 키가 필요하지 않습니다</div>
+  </section>
+  <div class="footer">퀵 투두 · 데이터는 현재 기기에 저장됩니다</div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const KEY='quickTodoTasks_v1';
+let tasks=JSON.parse(localStorage.getItem(KEY)||'[]');
+let filter='all';
+const $=id=>document.getElementById(id);
+const save=()=>localStorage.setItem(KEY,JSON.stringify(tasks));
+const escapeHTML=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function notify(s){const t=$('toast');t.textContent=s;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1800)}
+function render(){
+ const done=tasks.filter(t=>t.done).length, left=tasks.length-done, pct=tasks.length?Math.round(done/tasks.length*100):0;
+ $('total').textContent=tasks.length;$('remaining').textContent=left;$('completed').textContent=done;$('progress').style.width=pct+'%';
+ const shown=tasks.filter(t=>filter==='all'||(filter==='active'&&!t.done)||(filter==='done'&&t.done));
+ $('taskList').innerHTML=shown.length?shown.map(t=>`<div class="task ${t.done?'done':''}" data-id="${t.id}"><input type="checkbox" ${t.done?'checked':''} aria-label="Đánh dấu hoàn thành"><span class="task-name">${escapeHTML(t.text)}</span><div class="task-actions"><button class="icon-btn edit" title="Sửa">✎</button><button class="icon-btn delete" title="Xóa">⌫</button></div></div>`).join(''):`<div class="empty">${tasks.length?'이 필터에 해당하는 할 일이 없습니다.':'아직 할 일이 없습니다. 첫 번째 할 일을 추가해 보세요! ✨'}</div>`;
+ document.querySelectorAll('.filter').forEach(b=>b.classList.toggle('active',b.dataset.filter===filter));
+}
+function addTask(text){text=text.trim();if(!text)return false;if(text.length>100){notify('할 일은 최대 100자까지 입력할 수 있습니다.');return false}tasks.unshift({id:Date.now()+Math.random(),text,done:false});save();render();return true}
+$('addForm').addEventListener('submit',e=>{e.preventDefault();if(addTask($('taskInput').value)){$('taskInput').value='';$('charCount').textContent='0/100';notify('할 일을 추가했습니다!')}});
+$('taskInput').addEventListener('input',e=>$('charCount').textContent=e.target.value.length+'/100');
+$('taskList').addEventListener('click',e=>{
+ const row=e.target.closest('.task');if(!row)return;const task=tasks.find(t=>String(t.id)===row.dataset.id);if(!task)return;
+ if(e.target.matches('input[type=checkbox]')){task.done=e.target.checked;save();render();return}
+ if(e.target.closest('.delete')){if(confirm('이 할 일을 삭제하시겠습니까?')){tasks=tasks.filter(t=>t!==task);save();render();notify('할 일을 삭제했습니다.')}return}
+ if(e.target.closest('.edit')){const next=prompt('할 일 수정:',task.text);if(next!==null&&next.trim()){task.text=next.trim().slice(0,100);save();render();notify('할 일을 수정했습니다.')}return}
+});
+document.querySelectorAll('.filter').forEach(b=>b.addEventListener('click',()=>{filter=b.dataset.filter;render()}));
+$('today').textContent=new Intl.DateTimeFormat('vi-VN',{weekday:'short',day:'2-digit',month:'2-digit',year:'numeric'}).format(new Date());
+function botMessage(text){const el=document.createElement('div');el.className='msg bot';el.innerHTML=text;$('messages').appendChild(el);$('messages').scrollTop=$('messages').scrollHeight}
+function userMessage(text){const el=document.createElement('div');el.className='msg user';el.textContent=text;$('messages').appendChild(el);$('messages').scrollTop=$('messages').scrollHeight}
+function listText(items){return items.length?'<ul>'+items.map(t=>'<li>'+escapeHTML(t.text)+'</li>').join('')+'</ul>':'<br>Danh sách đang trống.'}
+function findTask(query){const q=query.toLowerCase().trim();return tasks.filter(t=>t.text.toLowerCase().includes(q))}
+function respond(raw){
+ const q=raw.toLowerCase().trim();if(!q)return '질문이나 요청을 입력해 주세요.';
+ const done=tasks.filter(t=>t.done),active=tasks.filter(t=>!t.done);
+ if(/^(안녕|안녕하세요|hello|hi)\b/.test(q))return '안녕하세요! 남은 할 일 조회, 전체 현황 확인, 검색, 추가, 완료 처리를 도와드릴게요.';
+ if(/(전체|모두|현황|통계|요약|오늘.*(할 일|todo))/.test(q)){
+  const pct=tasks.length?Math.round(done.length/tasks.length*100):0;
+  return `📊 <b>Todo 전체 현황</b><br>• 전체 할 일: <b>${tasks.length}개</b><br>• 미완료: <b>${active.length}개</b><br>• 완료: <b>${done.length}개</b><br>• 진행률: <b>${pct}%</b>`+(tasks.length?'<br><br><b>할 일 목록:</b>'+listText(tasks):'<br>첫 번째 할 일을 추가해 보세요!');
+ }
+ if(/(미완료|아직 안 끝|남은 할 일|남은 일|할 일.*남았)/.test(q))return `아직 완료하지 않은 할 일은 <b>${active.length}개</b>입니다:${listText(active)}`;
+ if(/(완료한|끝낸|완료 목록|끝난 일)/.test(q)&&!/(완료해|완료로 표시)/.test(q))return `완료한 할 일은 <b>${done.length}개</b>입니다:${listText(done)}`;
+ if(/(뭐부터|무엇부터|먼저 할|우선순위|추천|뭘 하면)/.test(q)){
+  if(!active.length)return '훌륭해요! 모든 할 일을 완료했습니다. 🎉';
+  return `💡 <b>${escapeHTML(active[active.length-1].text)}</b>부터 시작해 보는 건 어떨까요? 현재 미완료 목록에 있는 항목입니다. 시간과 중요도를 고려해 선택해 보세요!`;
+ }
+ const addMatch=raw.match(/(?:추가|등록|만들어)\s*(?:해\s*줘|해줘|해 주세요|해줘요)?\s*[:：]?\s*["'“”‘’]?(.+?)["'“”‘’]?\s*(?:추가해줘|추가해 주세요)?$/i);
+ if(addMatch&&addMatch[1]&&!/^(해줘|해 주세요|하나)$/.test(addMatch[1].trim())){
+  let name=addMatch[1].trim().replace(/[.!?]+$/,'').replace(/^["'“”‘’]|["'“”‘’]$/g,'').replace(/(을|를)\s*$/,'');
+  if(name.length>100)return '할 일 이름이 너무 깁니다. 100자 이내로 줄여 주세요.';
+  if(addTask(name))return `<b>${escapeHTML(name)}</b> 항목을 Todo 목록에 추가했습니다. ✓`;
+ }
+ const completeMatch=raw.match(/["'“”‘’]?(.+?)["'“”‘’]?\s*(?:을|를)?\s*(?:완료|끝내|마쳤)(?:해줘|해 주세요|해 줘|했어|했습니다)?$/i);
+ if(completeMatch&&completeMatch[1]&&!/(목록|전체|모두)/.test(completeMatch[1])){
+  const name=completeMatch[1].trim().replace(/^["'“”‘’]|["'“”‘’]$/g,'').replace(/(을|를)\s*$/,'');
+  const matches=findTask(name).filter(t=>!t.done);
+  if(matches.length===1){matches[0].done=true;save();render();return `<b>${escapeHTML(matches[0].text)}</b> 항목을 완료로 표시했습니다. ✓`}
+  if(matches.length>1)return '여러 항목이 검색되었습니다: '+listText(matches)+'<br>정확한 할 일 이름을 입력해 주세요.';
+  return `“${escapeHTML(name)}”이(가) 포함된 미완료 항목을 찾지 못했습니다. 목록을 확인해 주세요.`;
+ }
+ const searchMatch=raw.match(/(?:검색|찾아|확인)\s*[:：]?\s*["'“”‘’]?(.+?)["'“”‘’]?\s*(?:있어|있나요|찾아줘|검색해줘)?$/i);
+ if(searchMatch&&searchMatch[1]){
+  const name=searchMatch[1].trim().replace(/[.!?]+$/,'').replace(/^["'“”‘’]|["'“”‘’]$/g,'');
+  const matches=findTask(name);
+  return matches.length?`일치하는 항목 ${matches.length}개를 찾았습니다:${matches.map(t=>`<br>• ${escapeHTML(t.text)} — <b>${t.done?'완료':'미완료'}</b>`).join('')}`:`“${escapeHTML(name)}”이(가) 포함된 할 일을 찾지 못했습니다.`;
+ }
+ if(!tasks.length)return 'Todo 목록이 비어 있습니다. “영어 공부 추가해줘”라고 입력해 첫 번째 할 일을 만들어 보세요.';
+ return '요청을 정확히 이해하지 못했어요. 다음과 같이 입력해 보세요:<br>• “오늘 남은 할 일이 뭐야?”<br>• “전체 현황을 보여줘”<br>• “영어 공부 추가해줘”<br>• “영어 공부 완료해줘”<br>• “React 검색해줘”';
+}
+function sendChat(text){const q=text.trim();if(!q)return;if(q.length>300){botMessage('메시지는 최대 300자까지 입력할 수 있습니다. 내용을 줄여 주세요.');return}userMessage(q);$('chatInput').value='';const reply=respond(q);setTimeout(()=>botMessage(reply),180)}
+$('chatForm').addEventListener('submit',e=>{e.preventDefault();sendChat($('chatInput').value)});
+document.querySelectorAll('.quick').forEach(b=>b.addEventListener('click',()=>sendChat(b.dataset.prompt)));
+render();
+</script>
+</body>
+</html>
